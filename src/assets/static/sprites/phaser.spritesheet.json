@@ -1,0 +1,255 @@
+{
+	"frames": {
+		"Laser_Large.png": {
+			"frame": {
+				"x": 1,
+				"y": 1,
+				"w": 9,
+				"h": 29
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 9,
+				"h": 29
+			},
+			"sourceSize": {
+				"w": 9,
+				"h": 29
+			}
+		},
+		"Laser_Medium.png": {
+			"frame": {
+				"x": 12,
+				"y": 1,
+				"w": 8,
+				"h": 23
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 8,
+				"h": 23
+			},
+			"sourceSize": {
+				"w": 8,
+				"h": 23
+			}
+		},
+		"Laser_Small.png": {
+			"frame": {
+				"x": 22,
+				"y": 1,
+				"w": 7,
+				"h": 19
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 7,
+				"h": 19
+			},
+			"sourceSize": {
+				"w": 7,
+				"h": 19
+			}
+		},
+		"Minigun_Large.png": {
+			"frame": {
+				"x": 31,
+				"y": 1,
+				"w": 9,
+				"h": 28
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 9,
+				"h": 28
+			},
+			"sourceSize": {
+				"w": 9,
+				"h": 28
+			}
+		},
+		"Minigun_Medium.png": {
+			"frame": {
+				"x": 42,
+				"y": 1,
+				"w": 10,
+				"h": 21
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 10,
+				"h": 21
+			},
+			"sourceSize": {
+				"w": 10,
+				"h": 21
+			}
+		},
+		"Minigun_Small.png": {
+			"frame": {
+				"x": 42,
+				"y": 24,
+				"w": 8,
+				"h": 17
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 8,
+				"h": 17
+			},
+			"sourceSize": {
+				"w": 8,
+				"h": 17
+			}
+		},
+		"Plasma_Large.png": {
+			"frame": {
+				"x": 54,
+				"y": 1,
+				"w": 10,
+				"h": 31
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 10,
+				"h": 31
+			},
+			"sourceSize": {
+				"w": 10,
+				"h": 31
+			}
+		},
+		"Plasma_Medium.png": {
+			"frame": {
+				"x": 1,
+				"y": 34,
+				"w": 9,
+				"h": 27
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 9,
+				"h": 27
+			},
+			"sourceSize": {
+				"w": 9,
+				"h": 27
+			}
+		},
+		"Plasma_Small.png": {
+			"frame": {
+				"x": 12,
+				"y": 34,
+				"w": 8,
+				"h": 24
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 8,
+				"h": 24
+			},
+			"sourceSize": {
+				"w": 8,
+				"h": 24
+			}
+		},
+		"Proton_Large.png": {
+			"frame": {
+				"x": 22,
+				"y": 34,
+				"w": 14,
+				"h": 13
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 14,
+				"h": 13
+			},
+			"sourceSize": {
+				"w": 14,
+				"h": 13
+			}
+		},
+		"Proton_Medium.png": {
+			"frame": {
+				"x": 52,
+				"y": 34,
+				"w": 10,
+				"h": 10
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 10,
+				"h": 10
+			},
+			"sourceSize": {
+				"w": 10,
+				"h": 10
+			}
+		},
+		"Proton_Small.png": {
+			"frame": {
+				"x": 38,
+				"y": 46,
+				"w": 7,
+				"h": 7
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 7,
+				"h": 7
+			},
+			"sourceSize": {
+				"w": 7,
+				"h": 7
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "phaser.spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 65,
+			"h": 62
+		},
+		"scale": "1"
+	}
+}
