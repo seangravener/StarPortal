@@ -1,6 +1,12 @@
 import { Scene } from "phaser";
+import { SpriteDefinition } from "../objects/base.sprite";
+import { PlayerSprite } from "../objects/player.sprite";
 
 export class LayoutManager {
+  scene: Scene;
+  config: any;
+  graphics: any;
+
   get bounds() {
     const { x, y, width, height, rows, cols } = this.config;
 
@@ -11,7 +17,7 @@ export class LayoutManager {
     };
   }
 
-  constructor({ scene, x = 0, y = 0, rows = 12, cols = 12 }) {
+  constructor({ scene, x = 0, y = 0, rows = 12, cols = 12 }: any) {
     this.scene = scene;
     const { width, height } = this.scene.cameras.main;
     this.config = { x, y, width, height, rows, cols };
@@ -38,7 +44,7 @@ export class LayoutManager {
     this.graphics.strokePath();
   }
 
-  place(x, y, sprite) {
+  place(x: number, y: number, sprite: PlayerSprite) {
     // this.scene.coordinates;
     const x2 = this.bounds.cell.width * x + this.bounds.cell.width / 2;
     const y2 = this.bounds.cell.height * y + this.bounds.cell.height / 2;

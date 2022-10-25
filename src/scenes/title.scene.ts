@@ -1,13 +1,14 @@
-import { Cameras, Scene } from "phaser";
+import { Cameras, Scene, Types } from "phaser";
 import * as images from "../assets/images";
 import { LayoutManager } from "../lib/layout.manager";
 
 const _paths = [images.bg0, images.bg1];
-const _images = [];
-const _texts = [];
+const _images: any[] = [];
+const _texts: any[] = [];
 
 export class TitleScene extends Scene {
-  cursors;
+  layoutManager: LayoutManager;
+  cursorKeys: Types.Input.Keyboard.CursorKeys | undefined;
 
   constructor() {
     super({ key: "TitleScene" });
@@ -20,10 +21,10 @@ export class TitleScene extends Scene {
   }
 
   create() {
-    this.cursors = this.input.keyboard.createCursorKeys();
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
 
     const [w, h] = [this.cameras.main.width, this.cameras.main.height];
-    const coords = [0, 0, w, h];
+    const coords: [number, number, number, number] = [0, 0, w, h];
     for (const path of _paths) {
       _images.push(this.add.tileSprite(...coords, path).setOrigin(0));
     }
@@ -49,10 +50,10 @@ export class TitleScene extends Scene {
     });
   }
 
-  createTitle(text) {
+  createTitle() {
     const topRowSize = 64;
 
-    const fill = "#cfcfcf";
+    const color = "#cfcfcf";
     const [x, y] = [
       this.game.canvas.width / 2,
       this.game.canvas.height / 2 - topRowSize,
@@ -61,21 +62,21 @@ export class TitleScene extends Scene {
     // wrap in a new scene\container and append here
     this.add
       .text(x, y, "Star", {
-        fill,
+        color,
         font: `${topRowSize}px PilotCommandLaser`,
       })
       .setOrigin(0.5, 0.5);
 
     this.add
       .text(x, y + topRowSize, "Portal", {
-        fill,
+        color,
         font: `${topRowSize + 8}px PilotCommandHalftone`,
       })
       .setOrigin(0.5, 0.5);
 
     this.add
       .text(x, y + topRowSize * 2, "custom text", {
-        fill,
+        color,
         font: `${topRowSize * 0.5}px SpaceRanger`,
       })
       .setOrigin(0.5, 0.5);

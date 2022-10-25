@@ -3,8 +3,7 @@ import * as sprites from "../assets/sprites";
 
 export class ShapesScene extends Scene {
   constructor() {
-    super();
-    console.log('demoscene');
+    super({ key: "ShapesScene" });
   }
 
   preload() {
@@ -28,10 +27,10 @@ export class ShapesScene extends Scene {
     this.data.set("score", 100);
   }
 
-  addText(text) {
+  addText(text: string[]) {
     return this.add.text(100, 100, text, {
-      fill: "#00ff00",
-      font: "48px SpaceRanger",
+      color: "#00ff00",
+      fontFamily: "48px SpaceRanger",
     });
   }
 

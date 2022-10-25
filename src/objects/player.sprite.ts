@@ -1,12 +1,12 @@
-import { Input, Types } from "phaser";
-import { BaseSprite } from "./base.sprite";
+import { Input, Scene, Types } from "phaser";
+import { BaseSprite, SpriteDefinition } from "./base.sprite";
 
 export class PlayerSprite extends BaseSprite {
   cursorKeys: Types.Input.Keyboard.CursorKeys;
   keys: any;
   input: any;
 
-  constructor({ scene, x, y, texture }) {
+  constructor({ scene, x, y, texture }: SpriteDefinition) {
     super({ scene, x, y, texture });
     this.cursorKeys = scene.cursorKeys;
     this.keys = scene.keys;
@@ -30,7 +30,7 @@ export class PlayerSprite extends BaseSprite {
       );
 
     for (const animationName of ["left-turn", "right-turn"]) {
-      console.log(animationName);
+      // console.log(animationName);
       this.anims.create({
         key: animationName,
         repeat: 0,

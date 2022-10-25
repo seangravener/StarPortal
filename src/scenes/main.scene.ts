@@ -1,12 +1,11 @@
-import { SceneController } from "../lib/scene.controller";
+import { Scene } from "phaser";
 import { TitleScene } from "./title.scene";
 import { ShapesScene } from "./shapes.scene";
 import { PlayerScene } from "./player.scene";
-import { Cameras } from "phaser";
 
-export class MainScene extends SceneController {
+export class MainScene extends Scene {
   constructor() {
-    super();
+    super({ key: "MainScene" });
   }
 
   preload() {}

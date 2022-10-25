@@ -1,13 +1,20 @@
-import { Scene } from "phaser";
+import { Types, Scene } from "phaser";
 import { LayoutManager } from "../lib/layout.manager";
 import { PlayerSprite } from "../objects/player.sprite";
+import { flyingStateMachine } from "../objects/player.states";
 import * as sprites from "../assets/sprites";
+import { StateMachine } from "xstate";
 
 export class PlayerScene extends Scene {
-  keys;
+  cursorKeys: Types.Input.Keyboard.CursorKeys | undefined;
+  cursorKeysAlt: any;
+  layout: LayoutManager;
+  player1: PlayerSprite | undefined;
+  moveState: StateMachine<any, any, any>;
 
   constructor() {
-    super();
+    super({ key: "PlayerScene" });
+    this.moveState = flyingStateMachine;
   }
 
   preload() {
@@ -18,6 +25,13 @@ export class PlayerScene extends Scene {
     this.layout = new LayoutManager({ scene: this });
     this.createInputs();
     this.createPlayers();
+
+    this.moveState.transition("FlyingLeft", () => console.log("ok, flying now"));
+
+    console.log(
+      "trans",
+      this.moveState.transition("Flying", () => console.log("flying event"))
+    );
   }
 
   createInputs() {

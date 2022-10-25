@@ -9,7 +9,7 @@ export type SpriteDefinition = {
 };
 
 export class BaseSprite extends GameObjects.Sprite {
-  body: Physics.Arcade.Body;
+  declare body: Physics.Arcade.Body;
 
   constructor({ scene, x, y, texture, frame }: SpriteDefinition) {
     super(scene, x, y, texture, frame);
