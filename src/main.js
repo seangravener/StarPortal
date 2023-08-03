@@ -7,8 +7,8 @@ import * as images from "./assets/images";
 const config = {
   type: AUTO,
   parent: "game-canvas",
-  width: 960,
-  height: 720,
+  width: 940,
+  height: 520,
   physics: {
     default: "arcade",
     arcade: {

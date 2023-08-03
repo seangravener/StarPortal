@@ -2,7 +2,7 @@ import { Cameras, Scene, Types } from "phaser";
 import * as images from "../assets/images";
 import { LayoutManager } from "../lib/layout.manager";
 
-const _paths = [images.bg0, images.bg1];
+const _paths = [images.bgStatic1, images.bgPlanet];
 const _images: any[] = [];
 const _texts: any[] = [];
 
