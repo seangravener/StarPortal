@@ -33,17 +33,17 @@ export class PlayerScene extends Scene {
   create() {
     this.layout = new LayoutManager({ scene: this });
     this.setBackground();
-    this.createInputs();
+    // this.createInputs();
     this.createPlayers();
 
-    this.moveState.transition("FlyingLeft", () =>
-      console.log("ok, flying now")
-    );
+    // this.moveState.transition("FlyingLeft", () =>
+    //   console.log("ok, flying now")
+    // );
 
-    console.log(
-      "trans",
-      this.moveState.transition("Flying", () => console.log("flying event"))
-    );
+    // console.log(
+    //   "trans",
+    //   this.moveState.transition("Flying", () => console.log("flying event"))
+    // );
   }
 
   setBackground() {

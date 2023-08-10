@@ -1,42 +1,47 @@
-import { createMachine } from "xstate";
+import { interpret, createMachine } from "xstate";
 
 export const flyingStateMachine = createMachine({
-  initial: "Flying",
+  initial: "Idle",
   states: {
-    Flying: {
+    Idle: {
       on: {
-        "fly-left": {
-          target: "FlyingLeft",
-        },
-        "fly-right": {
-          target: "FlyingRight",
-        },
-        accelerate: {
-          target: "ThrustForward",
-        },
+        "fly-left": "FlyingLeft",
+        "fly-right": "FlyingRight",
+        "fly-up": "FlyingUp",
+        "fly-down": "FlyingDown",
+      },
+    },
+    IdleAfterLeft: {
+      on: {
+        "stop-fly-left": "Idle",
+      },
+    },
+    IdleAfterRight: {
+      on: {
+        "stop-fly-right": "Idle",
       },
     },
     FlyingLeft: {
       on: {
-        "fly-straight": {
-          target: "Flying",
-        },
+        "stop-horizontal": "Idle",
       },
     },
     FlyingRight: {
       on: {
-        "fly-straight": {
-          target: "Flying",
-        },
+        "stop-horizontal": "Idle",
       },
     },
-    ThrustForward: {
+    FlyingUp: {
       on: {
-        "fly-straight": {
-          target: "Flying",
-        },
+        "stop-vertical": "Idle",
+      },
+    },
+    FlyingDown: {
+      on: {
+        "stop-vertical": "Idle",
       },
     },
   },
-  id: "Ship Movement",
 });
+
+export const flyingService = interpret(flyingStateMachine);
