@@ -8,6 +8,11 @@ export class GameService extends Scene {
     return this.scene.get(_currentScene);
   }
 
+  resetInstance() {
+    _instance = new GameService({});
+    return _instance;
+  }
+
   static asSingleton() {
     return _instance ? _instance : (_instance = new GameService({}));
   }
