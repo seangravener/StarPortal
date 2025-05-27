@@ -8,6 +8,7 @@ export class PlayerSprite extends BaseSprite {
   cursorKeys: Types.Input.Keyboard.CursorKeys;
   keys: any;
   input: any;
+  private lastHorizontalState: string = "";
 
   constructor({ scene, x, y, texture }: SpriteDefinition) {
     super({ scene, x, y, texture });
@@ -28,69 +29,83 @@ export class PlayerSprite extends BaseSprite {
   }
 
   setupAnimations() {
-    const playerFrames = this.anims
-      .generateFrameNames("heroship")
-      .filter((frame) =>
-        frame?.frame?.toString().split("_").includes("PlayerBlue")
-      );
+    // Create idle animation (frame 1 - neutral position)
+    this.anims.create({
+      key: "idle",
+      frames: [{ key: "heroship", frame: "PlayerBlue_Frame_01" }],
+      frameRate: 1,
+      repeat: 0,
+    });
 
-    for (const animationName of ["left-turn", "right-turn"]) {
-      // console.log(animationName);
-      this.anims.create({
-        key: animationName,
-        repeat: 0,
-        frameRate: 30,
-        frames: playerFrames,
-      });
-    }
+    // Create left turn animation (frames 1 -> 2 for left banking)
+    this.anims.create({
+      key: "left-turn",
+      frames: [
+        { key: "heroship", frame: "PlayerBlue_Frame_01" },
+        { key: "heroship", frame: "PlayerBlue_Frame_02" },
+      ],
+      frameRate: 10,
+      repeat: 0,
+    });
+
+    // Create right turn animation using mirrored left banking frame
+    this.anims.create({
+      key: "right-turn",
+      frames: [
+        { key: "heroship", frame: "PlayerBlue_Frame_01" },
+        { key: "heroship", frame: "PlayerBlue_Frame_02" }, // Use same frame as left, will mirror with setFlipX
+      ],
+      frameRate: 10,
+      repeat: 0,
+    });
+
+    // Create flying left animation (hold frame 2)
+    this.anims.create({
+      key: "flying-left",
+      frames: [{ key: "heroship", frame: "PlayerBlue_Frame_02" }],
+      frameRate: 1,
+      repeat: 0,
+    });
+
+    // Create flying right animation (hold mirrored frame 2)
+    this.anims.create({
+      key: "flying-right",
+      frames: [{ key: "heroship", frame: "PlayerBlue_Frame_02" }], // Use same frame as left, will mirror with setFlipX
+      frameRate: 1,
+      repeat: 0,
+    });
+
+    this.setFrame("PlayerBlue_Frame_01");
   }
 
   handleInputs() {
-    if (
-      this.cursorKeys.left.isUp &&
-      this.flyingService.state.value === "FlyingLeft"
-    ) {
-      this.flyingService.send("stop-fly-left");
-    } else if (
-      this.cursorKeys.right.isUp &&
-      this.flyingService.state.value === "FlyingRight"
-    ) {
-      this.flyingService.send("stop-fly-right");
-    }
-
-    if (
-      this.cursorKeys.left.isDown &&
-      this.flyingService.state.value !== "FlyingLeft"
-    ) {
-      this.flyingService.send("fly-left");
-    } else if (
-      this.cursorKeys.right.isDown &&
-      this.flyingService.state.value !== "FlyingRight"
-    ) {
-      this.flyingService.send("fly-right");
-    }
+    const currentState = this.flyingService.state.value;
 
     if (this.cursorKeys.left.isDown) {
-      console.log("left");
-      flyingService.send("fly-left");
-    } else if (this.cursorKeys.right.isDown) {
-      flyingService.send("fly-right");
-    } else if (this.cursorKeys.up.isDown) {
-      flyingService.send("fly-up");
-    } else if (this.cursorKeys.down.isDown) {
-      flyingService.send("fly-down");
-    } else {
-      if (
-        flyingService.state.value === "FlyingLeft" ||
-        flyingService.state.value === "FlyingRight"
-      ) {
-        flyingService.send("stop-horizontal");
+      if (!currentState.includes("Left")) {
+        this.flyingService.send("fly-left");
       }
-      if (
-        flyingService.state.value === "FlyingUp" ||
-        flyingService.state.value === "FlyingDown"
-      ) {
-        flyingService.send("stop-vertical");
+    } else if (this.cursorKeys.right.isDown) {
+      if (!currentState.includes("Right")) {
+        this.flyingService.send("fly-right");
+      }
+    } else {
+      if (currentState.includes("Left") || currentState.includes("Right")) {
+        this.flyingService.send("stop-horizontal");
+      }
+    }
+
+    if (this.cursorKeys.up.isDown) {
+      if (!currentState.includes("Up")) {
+        this.flyingService.send("fly-up");
+      }
+    } else if (this.cursorKeys.down.isDown) {
+      if (!currentState.includes("Down")) {
+        this.flyingService.send("fly-down");
+      }
+    } else {
+      if (currentState.includes("Up") || currentState.includes("Down")) {
+        this.flyingService.send("stop-vertical");
       }
     }
   }
@@ -99,81 +114,80 @@ export class PlayerSprite extends BaseSprite {
     super.preUpdate(time, delta);
     this.handleInputs();
 
-    switch (this.flyingService.state.value) {
-      case "FlyingLeft":
-        this.body.setAccelerationX(-500);
-        if (
-          !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "left-turn"
-        ) {
-          this.setFlipX(false);
-          this.play("left-turn", true);
-        }
-        break;
+    const currentState = this.flyingService.state.value;
 
-      case "FlyingRight":
-        this.body.setAccelerationX(500);
-        if (
-          !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "right-turn"
-        ) {
-          this.setFlipX(true);
-          this.play("right-turn", true);
-        }
-        break;
+    // Reset accelerations
+    this.body.setAccelerationX(0);
+    this.body.setAccelerationY(0);
 
-      case "FlyingUp":
-        this.body.setAccelerationY(-250);
-        break;
-
-      case "FlyingDown":
-        this.body.setAccelerationY(250);
-        break;
-
-      default:
-        this.body.setAccelerationX(0);
-        this.body.setAccelerationY(0);
-        break;
-    }
-  }
-
-  protected preUpdate_og(time: number, delta: number): void {
-    super.preUpdate(time, delta);
-    this.input.didPressJump = Input.Keyboard.JustDown(this.cursorKeys.up);
-
-    if (this.cursorKeys.up.isDown) {
-      this.body.setAccelerationY(-250);
-      this.setFlipY(false);
-    } else if (this.cursorKeys.left.isDown) {
-      if (
-        this.body.velocity.x < 0 &&
-        this.body.acceleration.x < 0 &&
-        Input.Keyboard.JustDown(this.cursorKeys.left)
-      ) {
-        this.setFlipX(false);
-        this.play("left-turn", true);
-      }
-      this.body.setAccelerationX(-500);
-    } else if (this.cursorKeys.right.isDown) {
-      if (
-        this.body.velocity.x > 0 &&
-        this.body.acceleration.x > 0 &&
-        Input.Keyboard.JustDown(this.cursorKeys.right)
-      ) {
-        console.log(
-          "right justdown",
-          Input.Keyboard.JustDown(this.cursorKeys.right)
-        );
-        this.setFlipX(true);
-        this.play("right-turn");
-      }
-      this.body.setAccelerationX(500);
-    } else if (this.cursorKeys.down.isDown) {
-      this.body.setAccelerationY(250);
-      // this.setFlipY(true);
+    // Determine current horizontal state
+    let currentHorizontalState = "";
+    if (currentState.includes("Left")) {
+      currentHorizontalState = "left";
+    } else if (currentState.includes("Right")) {
+      currentHorizontalState = "right";
     } else {
-      this.body.setAccelerationX(0);
-      // this.body.setVelocity(0, 0);
+      currentHorizontalState = "idle";
+    }
+
+    // Handle animation changes when horizontal state changes
+    if (currentHorizontalState !== this.lastHorizontalState) {
+      console.log(
+        `State change: ${this.lastHorizontalState} -> ${currentHorizontalState}`
+      );
+
+      switch (currentHorizontalState) {
+        case "left":
+          this.body.setAccelerationX(-500);
+          this.setFlipX(false);
+          this.play("left-turn").once("animationcomplete", () => {
+            this.play("flying-left");
+          });
+          break;
+
+        case "right":
+          this.body.setAccelerationX(500);
+          this.setFlipX(true); // Mirror sprite for right
+          this.play("right-turn").once("animationcomplete", () => {
+            this.play("flying-right");
+          });
+          break;
+
+        case "idle":
+          this.setFlipX(false);
+          this.play("idle");
+          break;
+      }
+
+      this.lastHorizontalState = currentHorizontalState;
+    } else {
+      if (currentHorizontalState === "left") {
+        this.body.setAccelerationX(-500);
+        this.setFlipX(false);
+
+        if (
+          !this.anims.isPlaying &&
+          this.anims.currentAnim?.key !== "flying-left"
+        ) {
+          this.play("flying-left");
+        }
+      } else if (currentHorizontalState === "right") {
+        this.body.setAccelerationX(500);
+        this.setFlipX(true);
+
+        if (
+          !this.anims.isPlaying &&
+          this.anims.currentAnim?.key !== "flying-right"
+        ) {
+          this.play("flying-right");
+        }
+      }
+    }
+
+    if (currentState.includes("Up")) {
+      this.body.setAccelerationY(-250);
+    } else if (currentState.includes("Down")) {
+      this.body.setAccelerationY(250);
     }
   }
 }
