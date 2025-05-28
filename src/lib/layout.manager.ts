@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { PlayerSprite } from "../objects/player.sprite";
 
 interface Bounds {
-  cell: { width: number, height: number };
+  cell: { width: number; height: number };
   rows: number;
   cols: number;
 }
@@ -14,6 +14,7 @@ interface Config {
   height: number;
   rows: number;
   cols: number;
+  debug?: boolean;
 }
 
 export class LayoutManager {
@@ -21,18 +22,28 @@ export class LayoutManager {
   config: Config;
   graphics: any;
 
-  constructor({ scene, x = 0, y = 0, rows = 12, cols = 12 }: any) {
+  constructor({
+    scene,
+    x = 0,
+    y = 0,
+    rows = 12,
+    cols = 12,
+    debug = false,
+  }: any) {
     this.scene = scene;
     const { width, height } = this.scene.cameras.main;
     this.config = { x, y, width, height, rows, cols };
-    this.addGrid();
+
+    if (debug) {
+      this.addGrid();
+    }
   }
 
   get bounds(): Bounds {
     return {
-      cell: { 
-        width: this.config.width / this.config.cols, 
-        height: this.config.height / this.config.rows 
+      cell: {
+        width: this.config.width / this.config.cols,
+        height: this.config.height / this.config.rows,
       },
       rows: this.config.rows,
       cols: this.config.cols,

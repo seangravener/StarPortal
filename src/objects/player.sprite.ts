@@ -1,6 +1,5 @@
-import { Input, Scene, Types } from "phaser";
+import { Types } from "phaser";
 import { BaseSprite, SpriteDefinition } from "./base.sprite";
-import { StateMachine } from "xstate";
 import { flyingService } from "./player.states";
 
 export class PlayerSprite extends BaseSprite {
@@ -29,7 +28,6 @@ export class PlayerSprite extends BaseSprite {
   }
 
   setupAnimations() {
-    // Create idle animation (frame 1 - neutral position)
     this.anims.create({
       key: "idle",
       frames: [{ key: "heroship", frame: "PlayerBlue_Frame_01" }],
@@ -37,7 +35,6 @@ export class PlayerSprite extends BaseSprite {
       repeat: 0,
     });
 
-    // Create left turn animation (frames 1 -> 2 for left banking)
     this.anims.create({
       key: "left-turn",
       frames: [
@@ -48,18 +45,16 @@ export class PlayerSprite extends BaseSprite {
       repeat: 0,
     });
 
-    // Create right turn animation using mirrored left banking frame
     this.anims.create({
       key: "right-turn",
       frames: [
         { key: "heroship", frame: "PlayerBlue_Frame_01" },
-        { key: "heroship", frame: "PlayerBlue_Frame_02" }, // Use same frame as left, will mirror with setFlipX
+        { key: "heroship", frame: "PlayerBlue_Frame_02" },
       ],
       frameRate: 10,
       repeat: 0,
     });
 
-    // Create flying left animation (hold frame 2)
     this.anims.create({
       key: "flying-left",
       frames: [{ key: "heroship", frame: "PlayerBlue_Frame_02" }],
@@ -67,10 +62,9 @@ export class PlayerSprite extends BaseSprite {
       repeat: 0,
     });
 
-    // Create flying right animation (hold mirrored frame 2)
     this.anims.create({
       key: "flying-right",
-      frames: [{ key: "heroship", frame: "PlayerBlue_Frame_02" }], // Use same frame as left, will mirror with setFlipX
+      frames: [{ key: "heroship", frame: "PlayerBlue_Frame_02" }],
       frameRate: 1,
       repeat: 0,
     });
@@ -78,14 +72,21 @@ export class PlayerSprite extends BaseSprite {
     this.setFrame("PlayerBlue_Frame_01");
   }
 
-  handleInputs() {
+  handleInputs(
+    cursorKeys?: Types.Input.Keyboard.CursorKeys,
+    cursorKeysAlt?: any
+  ) {
     const currentState = this.flyingService.state.value;
 
-    if (this.cursorKeys.left.isDown) {
+    // Use provided inputs or fall back to internal ones
+    const keys = cursorKeys || this.cursorKeys;
+    const altKeys = cursorKeysAlt || this.keys;
+
+    if (keys.left.isDown || altKeys.left?.isDown) {
       if (!currentState.includes("Left")) {
         this.flyingService.send("fly-left");
       }
-    } else if (this.cursorKeys.right.isDown) {
+    } else if (keys.right.isDown || altKeys.right?.isDown) {
       if (!currentState.includes("Right")) {
         this.flyingService.send("fly-right");
       }
@@ -95,11 +96,11 @@ export class PlayerSprite extends BaseSprite {
       }
     }
 
-    if (this.cursorKeys.up.isDown) {
+    if (keys.up.isDown || altKeys.up?.isDown) {
       if (!currentState.includes("Up")) {
         this.flyingService.send("fly-up");
       }
-    } else if (this.cursorKeys.down.isDown) {
+    } else if (keys.down.isDown || altKeys.down?.isDown) {
       if (!currentState.includes("Down")) {
         this.flyingService.send("fly-down");
       }

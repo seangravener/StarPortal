@@ -43,10 +43,11 @@ export class TitleScene extends Scene {
       }
     );
 
-    this.cameras.main.fadeIn(1000, "#000000");
+    // this.cameras.main.fadeIn(1000, "#000000");
 
     this.layoutManager = new LayoutManager({
       scene: this,
+      debug: false,
     });
   }
 
