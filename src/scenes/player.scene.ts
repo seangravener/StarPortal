@@ -19,7 +19,19 @@ export class PlayerScene extends Scene {
   backgroundParallax2: Phaser.GameObjects.TileSprite;
   projectiles: Phaser.GameObjects.Group;
   lastShotTime: number = 0;
-  shotCooldown: number = 200; // milliseconds between shots
+  shotCooldown: number = 100; // milliseconds between shots
+
+  // Speed control properties
+  baseScrollSpeed: number = 0.5;
+  currentScrollSpeed: number = 0.5;
+  speedMultiplier: number = 1.0;
+  maxSpeedMultiplier: number = 2.5;
+  minSpeedMultiplier: number = 0.5;
+  normalSpeedMultiplier: number = 1.0;
+  lastUpKeyTime: number = 0;
+  lastDownKeyTime: number = 0;
+  doubleKeyThreshold: number = 300; // milliseconds for double key press
+  speedIndicatorText: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: "PlayerScene" });
@@ -42,15 +54,7 @@ export class PlayerScene extends Scene {
     this.createInputs();
     this.createPlayers();
     this.createProjectileGroup();
-
-    // this.moveState.transition("FlyingLeft", () =>
-    //   console.log("ok, flying now")
-    // );
-
-    // console.log(
-    //   "trans",
-    //   this.moveState.transition("Flying", () => console.log("flying event"))
-    // );
+    this.createSpeedIndicator();
   }
 
   setBackground() {
@@ -58,21 +62,18 @@ export class PlayerScene extends Scene {
 
     this.add.tileSprite(0, 0, w, h, "background_static").setOrigin(0);
 
-    // Add the near background, make sure it's added after the far background to ensure proper layering.
     this.backgroundParallax2 = this.add
       .tileSprite(0, 0, w, h, "background_parallax2")
       .setAlpha(0.1)
       .setOrigin(0)
       .setScrollFactor(0);
 
-    // Add the far background.
     this.backgroundParallax1 = this.add
       .tileSprite(0, 0, w, h, "background_parallax1")
       .setAlpha(0.1)
       .setOrigin(0)
       .setScrollFactor(0);
 
-    // Add the near background, make sure it's added after the far background to ensure proper layering.
     this.backgroundPlanet = this.add
       .tileSprite(0, 0, w, h, "background_planet")
       .setOrigin(0)
@@ -91,6 +92,112 @@ export class PlayerScene extends Scene {
     this.spaceKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
+
+    this.setupSpeedControls();
+  }
+
+  setupSpeedControls() {
+    this.input.keyboard.on("keydown-UP", () => {
+      this.handleVerticalSpeedChange("up");
+    });
+
+    this.input.keyboard.on("keydown-W", () => {
+      this.handleVerticalSpeedChange("up");
+    });
+
+    this.input.keyboard.on("keydown-DOWN", () => {
+      this.handleVerticalSpeedChange("down");
+    });
+
+    this.input.keyboard.on("keydown-S", () => {
+      this.handleVerticalSpeedChange("down");
+    });
+  }
+
+  handleVerticalSpeedChange(direction: "up" | "down") {
+    const currentTime = this.time.now;
+
+    if (direction === "up") {
+      // Double UP press - cycle speed up or return to normal
+      if (currentTime - this.lastUpKeyTime < this.doubleKeyThreshold) {
+        // Normal -> Fast
+        if (this.speedMultiplier === this.normalSpeedMultiplier) {
+          this.speedMultiplier = this.maxSpeedMultiplier;
+        }
+
+        // Slow -> Normal
+        else if (this.speedMultiplier === this.minSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        }
+
+        // Fast -> Normal
+        else if (this.speedMultiplier === this.maxSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        }
+
+        this.updateScrollSpeed();
+      }
+      this.lastUpKeyTime = currentTime;
+    } else if (direction === "down") {
+      // Double DOWN press - cycle speed down or return to normal
+      if (currentTime - this.lastDownKeyTime < this.doubleKeyThreshold) {
+        // Normal -> Slow
+        if (this.speedMultiplier === this.normalSpeedMultiplier) {
+          this.speedMultiplier = this.minSpeedMultiplier;
+        }
+
+        // Fast -> Normal
+        else if (this.speedMultiplier === this.maxSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        }
+
+        // Slow -> Normal
+        else if (this.speedMultiplier === this.minSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        }
+
+        this.updateScrollSpeed();
+      }
+
+      this.lastDownKeyTime = currentTime;
+    }
+  }
+
+  updateScrollSpeed() {
+    this.currentScrollSpeed = this.baseScrollSpeed * this.speedMultiplier;
+    this.updateSpeedIndicator();
+  }
+
+  createSpeedIndicator() {
+    this.speedIndicatorText = this.add
+      .text(20, 20, this.getSpeedText(), {
+        fontSize: "18px",
+        color: "#00ff00",
+        fontFamily: "Arial",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        padding: { x: 10, y: 5 },
+      })
+      .setScrollFactor(0)
+      .setDepth(1000);
+  }
+
+  getSpeedText(): string {
+    const speedPercent = Math.round(this.speedMultiplier * 100);
+    let speedLabel = "NORMAL";
+
+    if (this.speedMultiplier > 1) {
+      speedLabel = "FAST";
+    } else if (this.speedMultiplier < 1) {
+      speedLabel = "SLOW";
+    }
+
+    return `SPEED: ${speedLabel} (${speedPercent}%)`;
+  }
+
+  updateSpeedIndicator() {
+    if (this.speedIndicatorText) {
+      this.speedIndicatorText.setText(this.getSpeedText());
+    }
   }
 
   createPlayers() {
@@ -101,13 +208,6 @@ export class PlayerScene extends Scene {
       texture: this.textures.get("heroship"),
     });
     this.layout.place(6, 6, this.player1);
-
-    // this.player2 = new PlayerSprite({
-    //   scene: this,
-    //   x: 100,
-    //   y: 200,
-    //   texture: this.textures.get("heroship"),
-    // });
   }
 
   createProjectileGroup() {
@@ -159,12 +259,6 @@ export class PlayerScene extends Scene {
   }
 
   update() {
-    const velocity = 0.5;
-
-    this.backgroundParallax1.tilePositionY -= velocity * 0.5;
-    this.backgroundPlanet.tilePositionY -= velocity;
-    this.backgroundParallax2.tilePositionY -= velocity * 2;
-
     // Update player movement
     if (this.player1) {
       this.player1.update(this.cursorKeys, this.cursorKeysAlt);
@@ -172,6 +266,11 @@ export class PlayerScene extends Scene {
 
     // Handle shooting input
     this.handleShooting();
+
+    // Update background scrolling with current speed
+    this.backgroundParallax1.tilePositionY -= this.currentScrollSpeed * 0.5;
+    this.backgroundPlanet.tilePositionY -= this.currentScrollSpeed;
+    this.backgroundParallax2.tilePositionY -= this.currentScrollSpeed * 2;
 
     // Clean up destroyed projectiles
     this.projectiles.children.entries.forEach(
