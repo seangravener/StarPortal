@@ -1,12 +1,6 @@
 import { Scene } from "phaser";
 import { PlayerSprite } from "../objects/player.sprite";
 
-interface Bounds {
-  cell: { width: number; height: number };
-  rows: number;
-  cols: number;
-}
-
 interface Config {
   x: number;
   y: number;
@@ -14,7 +8,15 @@ interface Config {
   height: number;
   rows: number;
   cols: number;
-  debug?: boolean;
+}
+
+interface Bounds {
+  cell: {
+    width: number;
+    height: number;
+  };
+  rows: number;
+  cols: number;
 }
 
 export class LayoutManager {

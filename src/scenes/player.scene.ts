@@ -19,7 +19,7 @@ export class PlayerScene extends Scene {
   backgroundParallax2: Phaser.GameObjects.TileSprite;
   projectiles: Phaser.GameObjects.Group;
   lastShotTime: number = 0;
-  shotCooldown: number = 100; // milliseconds between shots
+  shotCooldown: number = 100;
 
   // Speed control properties
   baseScrollSpeed: number = 0.5;
@@ -30,7 +30,7 @@ export class PlayerScene extends Scene {
   normalSpeedMultiplier: number = 1.0;
   lastUpKeyTime: number = 0;
   lastDownKeyTime: number = 0;
-  doubleKeyThreshold: number = 300; // milliseconds for double key press
+  doubleKeyThreshold: number = 300;
   speedIndicatorText: Phaser.GameObjects.Text;
 
   constructor() {
@@ -118,47 +118,28 @@ export class PlayerScene extends Scene {
     const currentTime = this.time.now;
 
     if (direction === "up") {
-      // Double UP press - cycle speed up or return to normal
       if (currentTime - this.lastUpKeyTime < this.doubleKeyThreshold) {
-        // Normal -> Fast
         if (this.speedMultiplier === this.normalSpeedMultiplier) {
           this.speedMultiplier = this.maxSpeedMultiplier;
-        }
-
-        // Slow -> Normal
-        else if (this.speedMultiplier === this.minSpeedMultiplier) {
+        } else if (this.speedMultiplier === this.minSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        } else if (this.speedMultiplier === this.maxSpeedMultiplier) {
           this.speedMultiplier = this.normalSpeedMultiplier;
         }
-
-        // Fast -> Normal
-        else if (this.speedMultiplier === this.maxSpeedMultiplier) {
-          this.speedMultiplier = this.normalSpeedMultiplier;
-        }
-
         this.updateScrollSpeed();
       }
       this.lastUpKeyTime = currentTime;
     } else if (direction === "down") {
-      // Double DOWN press - cycle speed down or return to normal
       if (currentTime - this.lastDownKeyTime < this.doubleKeyThreshold) {
-        // Normal -> Slow
         if (this.speedMultiplier === this.normalSpeedMultiplier) {
           this.speedMultiplier = this.minSpeedMultiplier;
-        }
-
-        // Fast -> Normal
-        else if (this.speedMultiplier === this.maxSpeedMultiplier) {
+        } else if (this.speedMultiplier === this.maxSpeedMultiplier) {
+          this.speedMultiplier = this.normalSpeedMultiplier;
+        } else if (this.speedMultiplier === this.minSpeedMultiplier) {
           this.speedMultiplier = this.normalSpeedMultiplier;
         }
-
-        // Slow -> Normal
-        else if (this.speedMultiplier === this.minSpeedMultiplier) {
-          this.speedMultiplier = this.normalSpeedMultiplier;
-        }
-
         this.updateScrollSpeed();
       }
-
       this.lastDownKeyTime = currentTime;
     }
   }
@@ -166,6 +147,11 @@ export class PlayerScene extends Scene {
   updateScrollSpeed() {
     this.currentScrollSpeed = this.baseScrollSpeed * this.speedMultiplier;
     this.updateSpeedIndicator();
+
+    // Update player afterburner intensity based on speed multiplier
+    if (this.player1) {
+      this.player1.setSpeedMultiplier(this.speedMultiplier);
+    }
   }
 
   createSpeedIndicator() {
@@ -208,6 +194,9 @@ export class PlayerScene extends Scene {
       texture: this.textures.get("heroship"),
     });
     this.layout.place(6, 6, this.player1);
+
+    // Make sure player is above the afterburner
+    this.player1.setDepth(15);
   }
 
   createProjectileGroup() {
@@ -232,30 +221,17 @@ export class PlayerScene extends Scene {
   shoot() {
     if (!this.player1) return;
 
-    // Create projectile at player position
     const projectile = new ProjectileSprite({
       scene: this,
       x: this.player1.x,
-      y: this.player1.y - 20, // Offset slightly above player
+      y: this.player1.y - 20,
       texture: "phaser",
-      frame: "Laser_Large.png", // Using the large laser from the sprite sheet
+      frame: "Laser_Large.png",
       velocity: 600,
-      direction: -1, // Shoot upward
+      direction: -1,
     });
 
     this.projectiles.add(projectile);
-  }
-
-  addImages() {
-    var atlasTexture = this.textures.get("heroship");
-    var frames = atlasTexture.getFrameNames();
-
-    for (var i = 0; i < frames.length; i++) {
-      var x = Phaser.Math.Between(0, 800);
-      var y = Phaser.Math.Between(0, 600);
-
-      // this.add.sprite(x, y, "heroship", frames[i]);
-    }
   }
 
   update() {

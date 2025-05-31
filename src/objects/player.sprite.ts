@@ -1,5 +1,6 @@
 import { Types } from "phaser";
 import { BaseSprite, SpriteDefinition } from "./base.sprite";
+import { AfterburnerSprite } from "./afterburner.sprite";
 import { flyingService } from "./player.states";
 
 export class PlayerSprite extends BaseSprite {
@@ -8,6 +9,8 @@ export class PlayerSprite extends BaseSprite {
   keys: any;
   input: any;
   private lastHorizontalState: string = "";
+  private afterburner: AfterburnerSprite;
+  private isMovingForward: boolean = false;
 
   constructor({ scene, x, y, texture }: SpriteDefinition) {
     super({ scene, x, y, texture });
@@ -19,6 +22,7 @@ export class PlayerSprite extends BaseSprite {
     this.flyingService.start();
     this.setupPhysics();
     this.setupAnimations();
+    this.setupAfterburner();
   }
 
   setupPhysics() {
@@ -72,15 +76,31 @@ export class PlayerSprite extends BaseSprite {
     this.setFrame("PlayerBlue_Frame_01");
   }
 
+  setupAfterburner() {
+    console.log("Setting up afterburner for player");
+    // Create afterburner effect positioned behind the ship
+    this.afterburner = new AfterburnerSprite({
+      scene: this.scene,
+      x: this.x,
+      y: this.y,
+      texture: "phaser",
+      frame: "Plasma_Large.png",
+      parentSprite: this,
+      offsetX: 0,
+      offsetY: 40, // Position behind the ship
+    });
+  }
+
   handleInputs(
     cursorKeys?: Types.Input.Keyboard.CursorKeys,
     cursorKeysAlt?: any
   ) {
     const currentState = this.flyingService.state.value;
 
-    // Use provided inputs or fall back to internal ones
     const keys = cursorKeys || this.cursorKeys;
     const altKeys = cursorKeysAlt || this.keys;
+
+    this.isMovingForward = false;
 
     if (keys.left.isDown || altKeys.left?.isDown) {
       if (!currentState.includes("Left")) {
@@ -97,6 +117,7 @@ export class PlayerSprite extends BaseSprite {
     }
 
     if (keys.up.isDown || altKeys.up?.isDown) {
+      this.isMovingForward = true;
       if (!currentState.includes("Up")) {
         this.flyingService.send("fly-up");
       }
@@ -108,6 +129,40 @@ export class PlayerSprite extends BaseSprite {
       if (currentState.includes("Up") || currentState.includes("Down")) {
         this.flyingService.send("stop-vertical");
       }
+    }
+
+    this.updateAfterburnerState();
+  }
+
+  private updateAfterburnerState() {
+    if (this.isMovingForward) {
+      this.afterburner.activate();
+
+      // Calculate intensity based on current velocity
+      const velocityMagnitude = Math.sqrt(
+        this.body.velocity.x * this.body.velocity.x +
+          this.body.velocity.y * this.body.velocity.y
+      );
+
+      const intensity = Math.min(velocityMagnitude / 300, 2.0); // Normalize to reasonable range
+      this.afterburner.setIntensity(Math.max(intensity, 0.8)); // Minimum intensity when moving
+    } else {
+      this.afterburner.deactivate();
+    }
+  }
+
+  public setSpeedMultiplier(multiplier: number) {
+    if (this.isMovingForward) {
+      this.afterburner.setIntensity(multiplier);
+    }
+  }
+
+  public update() {
+    if (this.afterburner) {
+      this.afterburner.updateAfterburner(
+        this.scene.time.now,
+        this.scene.game.loop.delta
+      );
     }
   }
 
@@ -190,5 +245,16 @@ export class PlayerSprite extends BaseSprite {
     } else if (currentState.includes("Down")) {
       this.body.setAccelerationY(250);
     }
+
+    if (this.afterburner) {
+      this.afterburner.updateAfterburner(time, delta);
+    }
+  }
+
+  public destroy() {
+    if (this.afterburner) {
+      this.afterburner.destroy();
+    }
+    super.destroy();
   }
 }
